@@ -33,8 +33,6 @@
         <div class="header-content">
           <h1>🛠️ 导航站管理</h1>
           <div class="header-actions">
-            <button @click="emergencyReset" class="emergency-btn" hidden="true">🚨 紧急重置</button>
-            <button @click="debugLoadData" class="debug-btn" hidden="true">🔍 调试加载</button>
             <span class="user-info">管理员</span>
             <button @click="logout" class="logout-btn">退出</button>
           </div>
@@ -143,25 +141,25 @@ const categories = ref([])
 const navTitle = ref('米饭的导航') // 保存网站标题
 const selectedCategoryId = ref('') // 用于站点管理的选中分类
 
-// 紧急兜底：如果5秒后loading还是true，强制重置
-setTimeout(() => {
-  if (loading.value) {
-    console.warn('检测到loading状态异常，强制重置')
-    loading.value = false
-    // 确保至少有基本数据
-    if (categories.value.length === 0) {
-      categories.value = [
-        {
-          id: 'default',
-          name: '默认分类',
-          icon: '📁',
-          order: 0,
-          sites: []
-        }
-      ]
-    }
-  }
-}, 5000)
+// // 如果5秒后loading还是true，强制重置
+// setTimeout(() => {
+//   if (loading.value) {
+//     console.warn('检测到loading状态异常，强制重置')
+//     loading.value = false
+//     // 确保至少有基本数据
+//     if (categories.value.length === 0) {
+//       categories.value = [
+//         {
+//           id: 'default',
+//           name: '默认分类',
+//           icon: '📁',
+//           order: 0,
+//           sites: []
+//         }
+//       ]
+//     }
+//   }
+// }, 5000)
 
 // 自定义弹框状态
 const dialogVisible = ref(false)
@@ -217,39 +215,6 @@ const logout = () => {
   loginPassword.value = ''
   router.push('/')
 }
-
-// 调试加载数据
-const debugLoadData = async () => {
-  console.log('=== 开始调试加载数据 ===')
-  console.log('当前环境变量:', {
-    VITE_GITHUB_TOKEN: import.meta.env.VITE_GITHUB_TOKEN ? '已配置' : '未配置',
-    VITE_GITHUB_OWNER: import.meta.env.VITE_GITHUB_OWNER,
-    VITE_GITHUB_REPO: import.meta.env.VITE_GITHUB_REPO,
-    VITE_GITHUB_BRANCH: import.meta.env.VITE_GITHUB_BRANCH
-  })
-
-  try {
-    console.log('直接调用loadCategoriesFromGitHub...')
-    const data = await loadCategoriesFromGitHub()
-    console.log('调用成功，返回数据:', data)
-
-    showDialog(
-      'success',
-      '🎉 调试成功',
-      '直接调用GitHub API成功',
-      [`• 数据类型: ${typeof data}`, `• 包含categories: ${!!data.categories}`, `• 分类数量: ${data.categories?.length || 0}`]
-    )
-  } catch (error) {
-    console.error('直接调用失败:', error)
-    showDialog(
-      'error',
-      '❌ 调试失败',
-      '直接调用GitHub API失败',
-      [`• 错误信息: ${error.message}`, `• 错误类型: ${error.constructor.name}`]
-    )
-  }
-}
-
 // 加载分类数据（简化版本，暂时只加载本地数据）
 const loadCategories = async () => {
   console.log('🔍 开始加载分类数据（简化版本）')
@@ -367,31 +332,6 @@ const saveToGitHub = async () => {
   } finally {
     saving.value = false
   }
-}
-
-// 紧急重置加载状态
-const emergencyReset = () => {
-  console.log('用户点击紧急重置按钮，强制重置loading状态')
-  loading.value = false
-  // 强制DOM更新，确保loading状态同步到模板
-  setTimeout(() => {
-    console.log('🔍 延迟检查loading状态:', loading.value)
-    console.log('🔍 DOM中loading元素:', document.querySelector('.loading-overlay'))
-    console.log('🔍 DOM中tab按钮:', document.querySelectorAll('.tab-btn'))
-
-    // 如果loading overlay仍然存在，强制隐藏
-    const loadingOverlay = document.querySelector('.loading-overlay')
-    if (loadingOverlay) {
-      console.warn('🔍 发现loading overlay仍然存在，强制隐藏')
-      loadingOverlay.style.display = 'none'
-    }
-  }, 100)
-  showDialog(
-    'info',
-    '⚠️ 加载状态已重置',
-    '已强制重置加载状态，请刷新页面查看效果。',
-    []
-  )
 }
 
 // 组件挂载时检查认证状态
