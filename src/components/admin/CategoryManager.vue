@@ -14,16 +14,18 @@
     </div>
 
     <!-- 分类列表 -->
+
     <div class="categories-list">
       <div
         v-for="(category, index) in localCategories"
         :key="category.id"
         class="category-item clickable"
-         @click="$emit('viewSites', category.id)"
+        @click="$emit('viewSites', category.id)"
       >
       <!--向父组件传递分类ID -->
         <div class="category-header">
           <div class="category-info">
+            <!-- 使用事件修饰符阻止事件冒泡：防止触发站点分类的点击事件 -->
             <span class="category-icon" @click.stop="editCategory(category)">
               {{ category.icon }}
             </span>
@@ -73,7 +75,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3>{{ editingCategory ? '编辑分类' : '添加分类' }}</h3>
-          <button @click="closeModal" class="close-btn">✕</button>
+          <button @click="closeModal" class="close-btn" title="关闭弹窗">✕</button>
         </div>
 
         <form @submit.prevent="saveCategory" class="category-form">
@@ -170,8 +172,12 @@ const emojiSuggestions = [
 // 监听props变化
 watch(() => props.categories, (newCategories) => {
   localCategories.value = JSON.parse(JSON.stringify(newCategories))
-}, { immediate: true, deep: true })
-
+},
+ {
+   immediate: true,
+    deep: true
+  })
+console.log('localCategories', localCategories.value)
 // 手动同步到父组件的函数，避免无限循环
 const syncToParent = () => {
   emit('update', localCategories.value)
@@ -180,9 +186,11 @@ const syncToParent = () => {
 // 移动分类
 const moveCategory = (index, direction) => {
   const newIndex = index + direction
+  // 检查边界
   if (newIndex < 0 || newIndex >= localCategories.value.length) return
-
+// 使用数组方法创建副本 以避免直接修改响应式数据 减少不必要的渲染
   const categories = [...localCategories.value]
+
   const item = categories.splice(index, 1)[0]
   categories.splice(newIndex, 0, item)
 

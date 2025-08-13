@@ -126,41 +126,20 @@ import CustomDialog from '../components/admin/CustomDialog.vue'
 import { useGitHubAPI } from '../apis/useGitHubAPI.js'
 
 const router = useRouter()
-const { saveCategoriesToGitHub, loadCategoriesFromGitHub } = useGitHubAPI()
+const { saveCategoriesToGitHub,loadCategoriesFromGitHub } = useGitHubAPI()
 
 // 认证状态
-const isAuthenticated = ref(false)
-const loginPassword = ref('')
-const loginError = ref('')
-const loading = ref(false)
-const saving = ref(false)
+const isAuthenticated = ref(false) // 是否已认证
+const loginPassword = ref('') // 登录输入的密码
+const loginError = ref('') // 登录错误信息
+const loading = ref(false) // 全局加载状态
+const saving = ref(false) // 保存时正在保存的状态
 
 // 管理界面状态
 const activeTab = ref('categories')
 const categories = ref([])
 const navTitle = ref('米饭的导航') // 保存网站标题
 const selectedCategoryId = ref('') // 用于站点管理的选中分类
-
-// // 如果5秒后loading还是true，强制重置
-// setTimeout(() => {
-//   if (loading.value) {
-//     console.warn('检测到loading状态异常，强制重置')
-//     loading.value = false
-//     // 确保至少有基本数据
-//     if (categories.value.length === 0) {
-//       categories.value = [
-//         {
-//           id: 'default',
-//           name: '默认分类',
-//           icon: '📁',
-//           order: 0,
-//           sites: []
-//         }
-//       ]
-//     }
-//   }
-// }, 5000)
-
 // 自定义弹框状态
 const dialogVisible = ref(false)
 const dialogType = ref('success')
@@ -216,28 +195,50 @@ const logout = () => {
   router.push('/')
 }
 // 加载分类数据（简化版本，暂时只加载本地数据）
+// const loadCategories = async () => {
+//   console.log('🔍 开始加载分类数据（简化版本）')
+//   loading.value = true
+
+//   try {
+//     // 直接加载本地数据，避免GitHub API调用
+//     const { mockData } = await import('../mock/mock_data.js')
+//     categories.value = mockData.categories || []
+//     navTitle.value = mockData.title || '米饭的导航'
+//     console.log('✅ 本地数据加载成功，分类数量:', categories.value.length)
+//   } catch (error) {
+//     console.error('❌ 本地数据加载失败:', error)
+//     // 最后兜底：使用空数组
+//     categories.value = []
+//     navTitle.value = '米饭的导航'
+//   } finally {
+//     // 确保loading状态被重置
+//     loading.value = false
+//     console.log('🔍 数据加载完成，loading状态重置')
+//   }
+// }
+// 加载分类数据（GitHub读取）
 const loadCategories = async () => {
-  console.log('🔍 开始加载分类数据（简化版本）')
+  console.log('🔍 开始从GitHub加载分类数据')
   loading.value = true
 
   try {
-    // 直接加载本地数据，避免GitHub API调用
+    // 从GitHub加载数据
+    const githubData = await loadCategoriesFromGitHub()
+    categories.value = githubData.categories || []
+    navTitle.value = githubData.title || '米饭的导航'
+    console.log('✅ GitHub数据加载成功，分类数量:', categories.value.length)
+  } catch (error) {
+    console.error('❌ GitHub数据加载失败:', error)
+    // 失败时则加载本地静态数据
     const { mockData } = await import('../mock/mock_data.js')
     categories.value = mockData.categories || []
     navTitle.value = mockData.title || '米饭的导航'
-    console.log('✅ 本地数据加载成功，分类数量:', categories.value.length)
-  } catch (error) {
-    console.error('❌ 本地数据加载失败:', error)
-    // 最后兜底：使用空数组
-    categories.value = []
-    navTitle.value = '米饭的导航'
+    console.log('⚠️ 已加载本地数据')
   } finally {
-    // 确保loading状态被重置
     loading.value = false
-    console.log('🔍 数据加载完成，loading状态重置')
+    console.log('🔍 数据加载流程完成')
   }
 }
-
 // 处理分类更新
 const handleCategoriesUpdate = (newCategories) => {
   categories.value = newCategories
@@ -274,7 +275,7 @@ const skipLoading = async () => {
   console.log('用户选择跳过加载')
   loading.value = false
 
-  // 尝试加载本地数据
+  // 跳过加载则直接加载本地数据
   try {
     const { mockData } = await import('../mock/mock_data.js')
     categories.value = mockData.categories || []
@@ -282,7 +283,7 @@ const skipLoading = async () => {
     console.log('跳过加载后，使用本地数据:', categories.value.length)
   } catch (error) {
     console.error('跳过加载时，本地数据加载失败:', error)
-    // 最基本的兜底数据
+    // 加载失败则使用空数据
     categories.value = [
       {
         id: 'default',
@@ -294,7 +295,7 @@ const skipLoading = async () => {
     ]
     navTitle.value = '米饭的导航'
   }
-
+//调用自定义弹框提示用户
   showDialog(
     'info',
     '⏭️ 已跳过加载',
@@ -347,25 +348,47 @@ onMounted(() => {
     isAuthenticated.value = true
 
     // 直接使用本地数据，不调用GitHub API
-    console.log('🔍 直接加载本地数据，跳过GitHub API调用')
-    try {
-      // 使用同步方式加载本地数据
-      import('../mock/mock_data.js').then(({ mockData }) => {
-        categories.value = mockData.categories || []
-        navTitle.value = mockData.title || '米饭的导航'
-        console.log('🔍 本地数据加载成功，分类数量:', categories.value.length)
-      }).catch(error => {
-        console.error('🔍 本地数据加载失败:', error)
-        categories.value = []
-        navTitle.value = '米饭的导航'
-      })
-    } catch (error) {
-      console.error('🔍 数据加载异常:', error)
-      categories.value = []
-      navTitle.value = '米饭的导航'
-    }
-  }
+  //   console.log('🔍 直接加载本地数据，跳过GitHub API调用')
+  //   try {
+  //     // 使用同步方式加载本地数据
+  //     import('../mock/mock_data.js').then(({ mockData }) => {
+  //       categories.value = mockData.categories || []
+  //       navTitle.value = mockData.title || '米饭的导航'
+  //       console.log('🔍 本地数据加载成功，分类数量:', categories.value.length)
+  //     }).catch(error => {
+  //       console.error('🔍 本地数据加载失败:', error)
+  //       categories.value = []
+  //       navTitle.value = '米饭的导航'
+  //     })
+  //   } catch (error) {
+  //     console.error('🔍 数据加载异常:', error)
+  //     categories.value = []
+  //     navTitle.value = '米饭的导航'
+  //   }
+  // }
 
+ // 从GitHub加载数据（测试模式）
+    console.log('🔍 尝试从GitHub加载数据')
+    loadCategoriesFromGitHub()
+      .then(data => {
+        categories.value = data.categories || []
+        navTitle.value = data.title || '米饭的导航'
+        console.log('✅ GitHub数据加载成功，分类数量:', categories.value.length)
+      })
+      .catch(error => {
+        console.error('❌ GitHub数据加载失败，回退到本地数据:', error)
+        // 失败时加载本地数据
+        import('../mock/mock_data.js').then(({ mockData }) => {
+          categories.value = mockData.categories || []
+          navTitle.value = mockData.title || '米饭的导航'
+          console.log('🔍 本地数据加载成功，分类数量:', categories.value.length)
+        }).catch(localError => {
+          console.error('❌ 本地数据加载也失败:', localError)
+          categories.value = []
+          navTitle.value = '米饭的导航'
+        })
+      })
+  }
   console.log('🔍 AdminView组件挂载完成')
 })
 </script>

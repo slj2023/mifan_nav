@@ -26,9 +26,10 @@ export function useGitHubAPI() {
 
   // 获取文件内容
   const getFileContent = async (path, isBinaryFile = false) => {
+    // 获取配置
     const { token, owner, repo } = getConfig()
 
-    // 对路径进行URL编码，但保留斜杠
+    // 构建请求url  对路径进行URL编码，但保留斜杠
     const encodedPath = path.split('/').map(segment => encodeURIComponent(segment)).join('/')
     const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/contents/${encodedPath}`
 
@@ -47,58 +48,30 @@ export function useGitHubAPI() {
         },
         signal: controller.signal
       })
-
-      clearTimeout(timeoutId)
       console.log('GitHub API响应状态:', response.status, response.statusText)
 
       if (!response.ok) {
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
-        try {
-          const error = await response.json()
-          errorMessage = `GitHub API Error: ${error.message}`
-        } catch {
-          // 如果无法解析错误响应，使用基本错误信息
-          console.log('无法解析GitHub API错误响应')
-        }
-        throw new Error(errorMessage)
+         const error = await response.json().catch(() => ({}));
+         console.log('GitHub API错误响应:', error)
+         throw new Error(error.message || `GitHub API Error: ${response.status}`);
       }
 
       const data = await response.json()
       console.log('GitHub API响应数据:', data)
-
-      if (!data.content) {
-        throw new Error('GitHub API返回的数据中没有content字段')
-      }
-
       return {
+        // 文件内容  对于二进制文件不进行解码，直接返回base64内容
         content: isBinaryFile ? data.content : decodeURIComponent(escape(atob(data.content))), // 二进制文件不解码
+        //github文件版本的哈希（用于更新文件时的版本校验）
         sha: data.sha,
+        // 文件路径
         path: data.path
       }
     } catch (error) {
-      clearTimeout(timeoutId)
-      console.error('GitHub API请求失败:', error)
-
+      // 捕获超时错误
+      clearTimeout(timeoutId)// 清除超时定时器
       if (error.name === 'AbortError') {
         throw new Error('请求超时，请检查网络连接')
       }
-
-      // 检查是否是CORS相关错误
-      if (error.message.includes('CORS') || error.message.includes('Network')) {
-        throw new Error('网络请求失败，可能是CORS问题或网络连接问题')
-      }
-
-      // 检查是否是认证相关错误
-      if (error.message.includes('401') || error.message.includes('403')) {
-        throw new Error('GitHub认证失败，请检查GITHUB_TOKEN是否正确配置')
-      }
-
-      // 检查是否是环境变量配置错误
-      if (error.message.includes('VITE_GITHUB')) {
-        throw new Error('环境变量配置错误：' + error.message)
-      }
-
-      throw error
     }
   }
 

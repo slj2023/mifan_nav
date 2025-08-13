@@ -130,13 +130,13 @@
         <div class="config-item">
           <label>GitHub 仓库所有者 (VITE_GITHUB_OWNER):</label>
           <div class="config-value">
-            <span class="value-display">{{ envConfig.githubOwner || '默认: maodeyu180' }}</span>
+            <span class="value-display">{{ envConfig.githubOwner || '默认: slj2023' }}</span>
           </div>
         </div>
         <div class="config-item">
           <label>GitHub 仓库名称 (VITE_GITHUB_REPO):</label>
           <div class="config-value">
-            <span class="value-display">{{ envConfig.githubRepo || '默认: mao_nav' }}</span>
+            <span class="value-display">{{ envConfig.githubRepo || '默认:米饭的导航站' }}</span>
           </div>
         </div>
         <div class="config-item">
