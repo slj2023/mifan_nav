@@ -47,6 +47,13 @@ export const mockData = {
           "url": "https://juejin.cn",
           "description": "一个面向互联网技术开发者的优质内容分享平台",
           "icon": "/sitelogo/juejin.cn.ico"
+        },
+        {
+          "id":"leetcode",
+          "name": "LeetCode",
+          "url": "https://leetcode.cn",
+          "description": "编程题库，提升编程能力",
+          "icon": "/sitelogo/leetcode.cn.ico"
         }
       ]
     },
