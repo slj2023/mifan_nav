@@ -88,7 +88,7 @@ export const mockData = {
           "name": "Coze",
           "url": "https://www.coze.cn",
           "description": "扣子空间是你和 AI Agent 协同办公的场所在扣子空间里，精通各项技能的「通用实习生」，各行各业的「领域专家」，任你选择。",
-          "icon": "/sitelogo/www.coze.cn.ico"
+          "icon": "/sitelogo/coze.cn.ico"
         },
         {
           "id": "copilot",
@@ -389,7 +389,7 @@ export const mockData = {
           "name": "抖音",
           "url": "https://www.douyin.com",
           "description": "短视频平台",
-          "icon": "/sitelogo/www.douyin.cn.ico"
+          "icon": "/sitelogo/douyin.cn.ico"
         },
         {
           "id": "zhihu",
