@@ -83,6 +83,12 @@ export const mockData = {
           "url": "https://www.midjourney.com",
           "description": "AI图像生成工具",
           "icon": "/sitelogo/www.midjourney.com.ico"
+        },{
+          "id": "coze",
+          "name": "Coze",
+          "url": "https://www.coze.cn",
+          "description": "扣子空间是你和 AI Agent 协同办公的场所在扣子空间里，精通各项技能的「通用实习生」，各行各业的「领域专家」，任你选择。",
+          "icon": "/sitelogo/www.coze.cn.ico"
         },
         {
           "id": "copilot",
@@ -379,11 +385,11 @@ export const mockData = {
           "icon": "/sitelogo/www.youtube.com.ico"
         },
         {
-          "id": "douban",
-          "name": "豆瓣",
-          "url": "https://www.douban.com",
-          "description": "文艺生活社区",
-          "icon": "/sitelogo/www.douban.com.ico"
+          "id": "douyin",
+          "name": "抖音",
+          "url": "https://www.douyin.com",
+          "description": "短视频平台",
+          "icon": "/sitelogo/www.douyin.cn.ico"
         },
         {
           "id": "zhihu",
