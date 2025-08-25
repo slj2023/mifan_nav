@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import AutoImport from 'unplugin-auto-import/vite'
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -13,9 +14,8 @@ export default defineConfig({
         'vue',
         'vue-router'
       ],
-      dts: 'src/auto-imports.d.ts',
+      dts: 'auto-imports.d.ts', // 修正路径
     })
-
   ],
   resolve: {
     alias: {
@@ -23,21 +23,9 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: {
-      '/api/openai': {
-        target: 'https://api.openai.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/openai/, ''),
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-        }
-      }
-    },
-    // 配置SPA fallback，所有路由都返回index.html
     historyApiFallback: true,
   },
   build: {
-    // 构建时也需要考虑路由配置
     rollupOptions: {
       output: {
         manualChunks: {
