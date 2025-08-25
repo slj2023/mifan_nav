@@ -85,6 +85,7 @@
 
         <!-- 分类内容 -->
         <div v-else class="categories-container">
+          <AiBot/>
           <section
             v-for="category in categories"
             :key="category.id"
@@ -138,6 +139,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useNavigation } from '@/apis/useNavigation.js'
+import AiBot from '@/components/aibot/AiBot.vue'
 // 导入搜索引擎logo图片
 import { useRouter } from 'vue-router'
 import googleLogo from '@/assets/goolge.png'
@@ -231,7 +233,7 @@ const handleSearch = () => {
 
 // 处理图片加载错误
 const handleImageError = (event) => {
-  // 设置默认的 favicon.ico 作为 fallback 图片
+  // 设置默认的 logo.png 作为 fallback 图片
   event.target.src = '/logo.png'
   event.target.onerror = null // 防止无限循环
 }

@@ -389,7 +389,7 @@ export const mockData = {
           "name": "抖音",
           "url": "https://www.douyin.com",
           "description": "短视频平台",
-          "icon": "/sitelogo/douyin.cn.ico"
+          "icon": "/sitelogo/douyin.ico"
         },
         {
           "id": "zhihu",

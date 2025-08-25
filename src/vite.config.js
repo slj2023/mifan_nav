@@ -23,16 +23,6 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: {
-      '/api/openai': {
-        target: 'https://api.openai.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/openai/, ''),
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-        }
-      }
-    },
     // 配置SPA fallback，所有路由都返回index.html
     historyApiFallback: true,
   },
